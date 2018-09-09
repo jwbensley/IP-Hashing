@@ -63,60 +63,21 @@ int32_t main(uint32_t argc, char argv[]) {
             
             case (1): // Hash a random 5 tuple
 
-/*
-                ip_addr[0] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                ip_addr[1] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                ip_addr[2] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                ip_addr[3] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-*/
-                dst_ip_addr[0] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                dst_ip_addr[1] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                dst_ip_addr[2] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                dst_ip_addr[3] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                printf("%" PRIu8 " ", dst_ip_addr[0]);
-                printf("%" PRIu8 " ", dst_ip_addr[1]);
-                printf("%" PRIu8 " ", dst_ip_addr[2]);
-                printf("%" PRIu8 "\n", dst_ip_addr[3]);
+                generate_ip_flow(dst_ip_addr, &dst_port, &ip_proto, \
+                                 src_ip_addr, &src_port, (rand() % 2));
 
-                src_ip_addr[0] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                src_ip_addr[1] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                src_ip_addr[2] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                src_ip_addr[3] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-                printf("%" PRIu8 " ", src_ip_addr[0]);
-                printf("%" PRIu8 " ", src_ip_addr[1]);
-                printf("%" PRIu8 " ", src_ip_addr[2]);
-                printf("%" PRIu8 "\n", src_ip_addr[3]);
-
-
-                ip_proto = (rand() % 2) ? 6 : 17;
-                printf("%" PRIu8 "\n", ip_proto);
-
-                src_port  = (uint16_t)(65535.0 * rand() / (RAND_MAX + 1.0));
-                dst_port = (uint16_t)(65535.0 * rand() / (RAND_MAX + 1.0));
-                printf("%" PRIu16 " %" PRIu16 "\n", src_port, dst_port);
-
-                hash_ipv4(dst_ip_addr, src_ip_addr, ip_proto, src_port, dst_port);                
+                hash_ipv4(dst_ip_addr, src_ip_addr, ip_proto, src_port, \
+                          dst_port, vnode_cnt);                
             
-                return 0;
                 menu_opt = 0;
                 break;
 
             case (2): // Hash a specific 5 tuple
 
-                menu_opt = 0;
-                break;
+                if (read_ip_flow(dst_ip_str, &dst_port, &ip_proto, \
+                                 src_ip_str, &src_port) == EXIT_FAILURE)
+                    break;
 
-                printf("Enter destination IP address: ");
-                scanf("%s", dst_ip_str);
-                printf("Enter source IP address: ");
-                scanf("%s", src_ip_str);
-                printf("Enter IP protocol [6 or 17]: ");
-                scanf("%s", ip_proto);
-                printf("Enter destination port number: ");
-                scanf("%s", dst_port);
-                printf("Enter source port number: ");
-                scanf("%s", src_port);
-                
                 if (inet_pton(AF_INET, dst_ip_str, dst_ip_addr) == 0) {
                     if (inet_pton(AF_INET6, dst_ip_str, dst_ip_addr) == 0) {
                         printf("Invalid destination IP address!\n");
@@ -124,6 +85,7 @@ int32_t main(uint32_t argc, char argv[]) {
                         if (inet_pton(AF_INET6, src_ip_str, src_ip_addr) == 0) {
                             printf("Invalid source IP address!\n");
                         } else {
+                            printf("hash_ipv6\n");
                             //hash_ipv6(dst_ip_addr, src_ip_addr, ip_proto, dst_port, src_port);
                         }
                     }
@@ -131,7 +93,8 @@ int32_t main(uint32_t argc, char argv[]) {
                     if (inet_pton(AF_INET, src_ip_str, src_ip_addr) == 0) {
                         printf("Invalid source IP address!\n");
                     } else {
-                        //hash_ipv4(dst_ip_addr, src_ip_addr, ip_proto, dst_port, src_port);
+                        printf("hash_ipv4\n");
+                        hash_ipv4(dst_ip_addr, src_ip_addr, ip_proto, dst_port, src_port, vnode_cnt);
                     }
                 }
                 
@@ -140,57 +103,9 @@ int32_t main(uint32_t argc, char argv[]) {
 
             case(5): // Add a next-hop index
                 
-                if (pnode_cnt == 0) {
-
-                    if (node_add(root_pnode, NULL) != EXIT_SUCCESS)
-                        return EXIT_FAILURE;
-                    
-                    pnode_cnt += 1;
-                    
-                    if (node_add(root_vnode, root_pnode) != EXIT_SUCCESS)
-                        return EXIT_FAILURE;
-                    
-                    vnode_cnt += 1;
-                    
-                } else if (pnode_cnt == 1) {
-
-                    if (node_add(root_pnode, NULL) != EXIT_SUCCESS)
-                        return EXIT_FAILURE;
-                    
-                    pnode_cnt += 1;
-                    
-                    if (node_add(root_vnode, root_pnode->prev) != EXIT_SUCCESS)
-                        return EXIT_FAILURE;
-                    
-                    vnode_cnt += 1;
-                
-                } else {
-
-                    if (node_add(root_pnode, NULL) != EXIT_SUCCESS)
-                        return EXIT_FAILURE;
-                    
-                    pnode_cnt += 1;
-
-                    for (uint32_t i = 0; i < pnode_cnt; i += 1) {
-                        if (node_add(root_vnode, node_get(root_pnode, i)) != EXIT_SUCCESS)
-                            return EXIT_FAILURE;
-                        
-                        vnode_cnt += 1;
-                    }
-
-                    while (vnode_cnt < (pnode_cnt * (pnode_cnt - 1))) {
-                        if (node_add(root_vnode, root_pnode->prev) != EXIT_SUCCESS)
-                            return EXIT_FAILURE;
-                        
-                        vnode_cnt += 1;
-                    }
-
-                }
-                
-                printf("pnodes: %" PRIu32 "\n", pnode_cnt);
-                node_print_all(root_pnode);
-                printf("vnodes: %" PRIu32 "\n", vnode_cnt);
-                node_print_all(root_vnode);
+                if (pnode_add(&pnode_cnt, root_pnode, root_vnode, &vnode_cnt) \
+                    != EXIT_SUCCESS)
+                    return EXIT_FAILURE;
 
                 menu_opt = 0;
                 break;

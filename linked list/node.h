@@ -32,4 +32,7 @@ static void node_print(struct node *node);
 // Print the details for all nodes in a linked list at root_node
 static void node_print_all(struct node *root_node);
 
+// Add a new next-hop entry to the linked list
+static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, struct node *root_vnode, uint32_t *vnode_cnt);
+
 #endif  // _NODE_H_

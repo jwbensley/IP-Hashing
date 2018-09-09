@@ -151,3 +151,60 @@ static void node_print_all(struct node *root_node) {
     return;
 
 }
+
+static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, struct node *root_vnode, uint32_t *vnode_cnt) {
+
+    if (*pnode_cnt == 0) {
+
+        if (node_add(root_pnode, NULL) != EXIT_SUCCESS)
+            return EXIT_FAILURE;
+        
+        *pnode_cnt += 1;
+        
+        if (node_add(root_vnode, root_pnode) != EXIT_SUCCESS)
+            return EXIT_FAILURE;
+        
+        *vnode_cnt += 1;
+        
+    } else if (*pnode_cnt == 1) {
+
+        if (node_add(root_pnode, NULL) != EXIT_SUCCESS)
+            return EXIT_FAILURE;
+        
+        *pnode_cnt += 1;
+        
+        if (node_add(root_vnode, root_pnode->prev) != EXIT_SUCCESS)
+            return EXIT_FAILURE;
+        
+        *vnode_cnt += 1;
+    
+    } else {
+
+        if (node_add(root_pnode, NULL) != EXIT_SUCCESS)
+            return EXIT_FAILURE;
+        
+        *pnode_cnt += 1;
+
+        for (uint32_t i = 0; i < *pnode_cnt; i += 1) {
+            if (node_add(root_vnode, node_get(root_pnode, i)) != EXIT_SUCCESS)
+                return EXIT_FAILURE;
+            
+            *vnode_cnt += 1;
+        }
+
+        while (*vnode_cnt < (*pnode_cnt * (*pnode_cnt - 1))) {
+            if (node_add(root_vnode, root_pnode->prev) != EXIT_SUCCESS)
+                return EXIT_FAILURE;
+            
+            *vnode_cnt += 1;
+        }
+
+    }
+    
+    printf("pnodes: %" PRIu32 "\n", *pnode_cnt);
+    node_print_all(root_pnode);
+    printf("vnodes: %" PRIu32 "\n", *vnode_cnt);
+    node_print_all(root_vnode);
+
+    return EXIT_SUCCESS;
+}
