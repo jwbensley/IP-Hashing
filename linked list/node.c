@@ -128,7 +128,8 @@ static void node_print(struct node *node) {
 
     if (node->next == NULL) return;
 
-    printf("node = %p, prev = %p, next = %p, val = %p\n", node, node->prev, node->next, node->val);
+    printf("node = %p, prev = %p, next = %p, val = %p\n", 
+           node, node->prev, node->next, node->val);
 
 }
 
@@ -152,7 +153,8 @@ static void node_print_all(struct node *root_node) {
 
 }
 
-static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, struct node *root_vnode, uint32_t *vnode_cnt) {
+static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, \
+                         struct node *root_vnode, uint32_t *vnode_cnt) {
 
     if (*pnode_cnt == 0) {
 
@@ -200,11 +202,27 @@ static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, struct no
         }
 
     }
-    
-    printf("pnodes: %" PRIu32 "\n", *pnode_cnt);
-    node_print_all(root_pnode);
-    printf("vnodes: %" PRIu32 "\n", *vnode_cnt);
-    node_print_all(root_vnode);
 
     return EXIT_SUCCESS;
+
+}
+
+static void pnode_delete(uint32_t *pnode_cnt, struct node *root_pnode, \
+                            struct node *root_vnode, uint32_t *vnode_cnt) {
+
+    if (*pnode_cnt > 0) {
+
+        if (*vnode_cnt == 1) {
+            node_delete(root_vnode);
+            *vnode_cnt -= 1;
+
+        } else if (*vnode_cnt > 1) {
+            *vnode_cnt -= node_delete_by_val(root_vnode, root_pnode->prev);
+        }
+
+        node_delete(root_pnode->prev);
+        if (*pnode_cnt > 0) *pnode_cnt -= 1;
+    
+    }
+
 }
