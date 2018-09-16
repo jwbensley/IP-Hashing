@@ -4,6 +4,7 @@
 #include <sys/socket.h>  // AF_INET, AF_INET6
 #include <stdlib.h>      // calloc(), EXIT_FAILURE, EXIT_SUCCESS, strtoul()
 #include <stdio.h>       // getchar(), perror(), printf()
+#include <string.h>      // memset()
 #include <time.h>        // time()
 
 #include "main.h"
@@ -39,7 +40,9 @@ int32_t main(uint32_t argc, char argv[]) {
             != EXIT_SUCCESS)
             return EXIT_FAILURE;
     }
-    
+
+    test_ipv4_hash((rand() % 2), vnode_cnt);
+    return 0;
 
     while (menu) {
 
@@ -52,9 +55,9 @@ int32_t main(uint32_t argc, char argv[]) {
                 generate_ipv4_flow(dst_ip_addr, &dst_port, &ip_proto, \
                                    src_ip_addr, &src_port, (rand() % 2));
 
-                uint32_t vnode_index = hash_ipv4(dst_ip_addr, src_ip_addr, \
-                                                 ip_proto, src_port, \
-                                                 dst_port, vnode_cnt);
+                uint32_t vnode_index = hash_ipv4(dst_ip_addr, dst_port, \
+                                                 ip_proto, src_ip_addr, \
+                                                 src_port, vnode_cnt);
 
                 node_print(node_get(root_vnode, vnode_index));        
             
@@ -80,7 +83,7 @@ int32_t main(uint32_t argc, char argv[]) {
                 } else if (is_ipv4_flow(dst_ip_addr, dst_ip_str, &ip_proto, \
                                         src_ip_addr, src_ip_str)) {
                 
-                    hash_ipv4(dst_ip_addr, src_ip_addr, ip_proto, dst_port, \
+                    hash_ipv4(dst_ip_addr, dst_port, ip_proto, src_ip_addr, \
                               src_port, vnode_cnt);
                 
                 } else {
