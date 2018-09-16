@@ -2,6 +2,84 @@
 #include "hash.h"
 
 
+static void test_ipv4_hash(uint8_t version, uint32_t vnode_cnt) {
+
+    uint8_t dst_ip_addr[sizeof(struct in6_addr)];
+    uint16_t dst_port;
+    uint8_t ip_proto;
+    uint8_t src_ip_addr[sizeof(struct in6_addr)];
+    uint16_t src_port;
+
+    //uint32_t *distribution = calloc(vnode_cnt, sizeof(uint32_t));
+    uint32_t distribution[vnode_cnt];
+    memset(&distribution, 0, (sizeof(uint32_t)*vnode_cnt));
+
+
+    dst_ip_addr[0] = 0;
+    dst_ip_addr[1] = 0;
+    src_ip_addr[0] = 0;
+    src_ip_addr[1] = 0;
+
+    //ip_proto = (rand() % 2) ? 6 : 17;
+    ip_proto = 6;
+
+    for (uint16_t a = 0; a <= 255; a += 1) {
+
+        dst_ip_addr[2] = a;
+
+        for (uint16_t b = 0; b <= 255; b += 1) {
+        
+            dst_ip_addr[3] = b;
+
+            for (uint16_t c = 0; c <= 255; c += 1) {
+        
+                src_ip_addr[2] = c;
+            
+                for (uint16_t d = 0; d <= 255; d += 1) {
+        
+                    src_ip_addr[3] = d;
+
+                    for (uint32_t e = 0; e <= 65535; e += 1) {
+                    
+                        dst_port = e;
+
+                        for (uint32_t f = 0; f <= 65535; f += 1) {
+
+                            src_port  = f;
+
+                            uint32_t index = hash_ipv4(dst_ip_addr, dst_port, \
+                                                       ip_proto, src_ip_addr, \
+                                                       src_port, vnode_cnt);
+                            distribution[index] += 1;
+
+                            //if (b == 254 && c == 254 && d == 254)
+                            //    printf("index: %" PRIu32 ", distribution: %" PRIu32 "\n", index, distribution[index]);
+                        }
+
+                    }
+
+                }
+            }
+        }
+    }
+
+    for(uint32_t i = 0; i < vnode_cnt; i += 1) {
+        printf("%" PRIu32 " ", distribution[i]);
+    }
+
+/*
+    if (version) { // IPv6
+        for (uint8_t i = 4; i <= 15; i++) {
+            dst_ip_addr[i] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
+            src_ip_addr[i] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
+        }
+    }
+*/
+    
+
+}
+
+
 static void generate_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
                                uint16_t *dst_port, uint8_t *ip_proto, \
                                uint8_t src_ip_addr[sizeof(struct in6_addr)], \
@@ -31,9 +109,9 @@ static void generate_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
 
 }
 
-static uint32_t hash_ipv4(uint8_t *dst_ip_addr, uint8_t *src_ip_addr, \
-                          uint8_t ip_proto, uint16_t src_port, \
-                          uint16_t dst_port, uint32_t vnode_cnt) {
+static uint32_t hash_ipv4(uint8_t *dst_ip_addr, uint16_t dst_port, \
+                          uint8_t ip_proto, uint8_t *src_ip_addr, \
+                          uint16_t src_port, uint32_t vnode_cnt) {
 
     if (vnode_cnt == 0) return 0;
 
@@ -52,16 +130,16 @@ static uint32_t hash_ipv4(uint8_t *dst_ip_addr, uint8_t *src_ip_addr, \
 
     uint16_t dst_ip = ((dst_ip_addr[2] << 8) | dst_ip_addr[3]) * ip_proto;
     uint64_t index = ((uint64_t)dst_ip << 48) | ((uint64_t)src_ip_addr[2] << 40) | ((uint64_t)src_ip_addr[3] << 32) | (dst_port << 16) | src_port;
-    uint64_t remainder = index % vnode_cnt;
+    uint32_t remainder = (uint32_t)(index % vnode_cnt);
     /////printf("index %" PRIu64 ", remainder: %" PRIu64 "\n", index, remainder);
 
     return remainder;
 }
 
 
-static uint32_t hash_ipv6(uint8_t *dst_ip_addr, uint8_t *src_ip_addr, \
-                          uint8_t ip_proto, uint16_t src_port, \
-                          uint16_t dst_port, uint32_t vnode_cnt) {
+static uint32_t hash_ipv6(uint8_t *dst_ip_addr, uint16_t dst_port, \
+                          uint8_t ip_proto, uint8_t *src_ip_addr, \
+                          uint16_t src_port, uint32_t vnode_cnt) {
 
     if (vnode_cnt == 0) return 0;
 
@@ -71,7 +149,7 @@ static uint32_t hash_ipv6(uint8_t *dst_ip_addr, uint8_t *src_ip_addr, \
 
     uint16_t dst_ip = ((dst_ip_addr[2] << 8) | dst_ip_addr[3]) * ip_proto;
     uint64_t index = ((uint64_t)dst_ip << 48) | ((uint64_t)src_ip_addr[2] << 40) | ((uint64_t)src_ip_addr[3] << 32) | (dst_port << 16) | src_port;
-    uint64_t remainder = index % vnode_cnt;
+    uint32_t remainder = (uint32_t)(index % vnode_cnt);
     /////printf("index %" PRIu64 ", remainder: %" PRIu64 "\n", index, remainder);
 
     return remainder;

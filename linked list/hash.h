@@ -9,14 +9,14 @@ static void generate_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in_addr)], \
                              uint16_t *src_port, uint8_t version);
 
 // Return an index into the virtual node linked-list based on an IPv4 5-tuple
-static uint32_t hash_ipv4(uint8_t *dst_ip_addr, uint8_t *src_ip_addr, \
-                          uint8_t ip_proto, uint16_t src_port, \
-                          uint16_t dst_port, uint32_t vnode_cnt);
+static uint32_t hash_ipv4(uint8_t *dst_ip_addr, uint16_t dst_port, \
+                          uint8_t ip_proto, uint8_t *src_ip_addr, \
+                          uint16_t src_port, uint32_t vnode_cnt);
 
 // Return an index into the virtual node linked-list based on an IPv4 5-tuple
-static uint32_t hash_ipv6(uint8_t *dst_ip_addr, uint8_t *src_ip_addr, \
-                          uint8_t ip_proto, uint16_t src_port, \
-                          uint16_t dst_port, uint32_t vnode_cnt);
+static uint32_t hash_ipv6(uint8_t *dst_ip_addr, uint16_t dst_port, \
+                          uint8_t ip_proto, uint8_t *src_ip_addr, \
+                          uint16_t src_port, uint32_t vnode_cnt);
 
 // Check if user supplied IPv4 details are valid 
 static uint8_t is_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
@@ -40,5 +40,7 @@ static int32_t read_ip_flow(uint8_t dst_ip_str[INET6_ADDRSTRLEN], \
                             uint16_t *dst_port, uint8_t *ip_proto, \
                             uint8_t src_ip_str[INET6_ADDRSTRLEN], \
                             uint16_t *src_port);
+
+static void test_ipv4_hash(uint8_t version, uint32_t vnode_cnt);
 
 #endif  // _HASH_H_
