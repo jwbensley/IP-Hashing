@@ -2,88 +2,10 @@
 #include "hash.h"
 
 
-static void test_ipv4_hash(uint8_t version, uint32_t vnode_cnt) {
-
-    uint8_t dst_ip_addr[sizeof(struct in6_addr)];
-    uint16_t dst_port;
-    uint8_t ip_proto;
-    uint8_t src_ip_addr[sizeof(struct in6_addr)];
-    uint16_t src_port;
-
-    //uint32_t *distribution = calloc(vnode_cnt, sizeof(uint32_t));
-    uint32_t distribution[vnode_cnt];
-    memset(&distribution, 0, (sizeof(uint32_t)*vnode_cnt));
-
-
-    dst_ip_addr[0] = 0;
-    dst_ip_addr[1] = 0;
-    src_ip_addr[0] = 0;
-    src_ip_addr[1] = 0;
-
-    //ip_proto = (rand() % 2) ? 6 : 17;
-    ip_proto = 6;
-
-    for (uint16_t a = 0; a <= 255; a += 1) {
-
-        dst_ip_addr[2] = a;
-
-        for (uint16_t b = 0; b <= 255; b += 1) {
-        
-            dst_ip_addr[3] = b;
-
-            for (uint16_t c = 0; c <= 255; c += 1) {
-        
-                src_ip_addr[2] = c;
-            
-                for (uint16_t d = 0; d <= 255; d += 1) {
-        
-                    src_ip_addr[3] = d;
-
-                    for (uint32_t e = 0; e <= 65535; e += 1) {
-                    
-                        dst_port = e;
-
-                        for (uint32_t f = 0; f <= 65535; f += 1) {
-
-                            src_port  = f;
-
-                            uint32_t index = hash_ipv4(dst_ip_addr, dst_port, \
-                                                       ip_proto, src_ip_addr, \
-                                                       src_port, vnode_cnt);
-                            distribution[index] += 1;
-
-                            //if (b == 254 && c == 254 && d == 254)
-                            //    printf("index: %" PRIu32 ", distribution: %" PRIu32 "\n", index, distribution[index]);
-                        }
-
-                    }
-
-                }
-            }
-        }
-    }
-
-    for(uint32_t i = 0; i < vnode_cnt; i += 1) {
-        printf("%" PRIu32 " ", distribution[i]);
-    }
-
-/*
-    if (version) { // IPv6
-        for (uint8_t i = 4; i <= 15; i++) {
-            dst_ip_addr[i] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-            src_ip_addr[i] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
-        }
-    }
-*/
-    
-
-}
-
-
 static void generate_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
                                uint16_t *dst_port, uint8_t *ip_proto, \
                                uint8_t src_ip_addr[sizeof(struct in6_addr)], \
-                               uint16_t *src_port, uint8_t version) {
+                               uint16_t *src_port, uint8_t is_ipv6) {
 
     dst_ip_addr[0] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
     dst_ip_addr[1] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
@@ -95,7 +17,7 @@ static void generate_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
     src_ip_addr[2] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
     src_ip_addr[3] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
 
-    if (version) { // IPv6
+    if (is_ipv6) {
         for (uint8_t i = 4; i <= 15; i++) {
             dst_ip_addr[i] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
             src_ip_addr[i] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
@@ -109,29 +31,14 @@ static void generate_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
 
 }
 
+
 static uint32_t hash_ipv4(uint8_t *dst_ip_addr, uint16_t dst_port, \
                           uint8_t ip_proto, uint8_t *src_ip_addr, \
                           uint16_t src_port, uint32_t vnode_cnt) {
 
-    if (vnode_cnt == 0) return 0;
-
-    /*
-      Multiply the dst_ip by ip_proto to offset one of the src/dst IP
-      addresses. Unsigned int wrap arround is defined in C99. If we think of
-      unsinged int wrap as a "ring" of possible values, the same range of 2**16
-      values from the last two octets of the dst_ip are used however, they are
-      simply moved around the ring.
-
-      This is so that the return path for the same flow produces a different
-      result. xor(src_ip, dst_ip) produces the same value as
-      xor(dst_ip, src_ip) unless one of the values is offset, e.g dst_ip.
-      dst_ip will be different depending on flow direction.
-    */
-
     uint16_t dst_ip = ((dst_ip_addr[2] << 8) | dst_ip_addr[3]) * ip_proto;
     uint64_t index = ((uint64_t)dst_ip << 48) | ((uint64_t)src_ip_addr[2] << 40) | ((uint64_t)src_ip_addr[3] << 32) | (dst_port << 16) | src_port;
     uint32_t remainder = (uint32_t)(index % vnode_cnt);
-    /////printf("index %" PRIu64 ", remainder: %" PRIu64 "\n", index, remainder);
 
     return remainder;
 }
@@ -141,29 +48,22 @@ static uint32_t hash_ipv6(uint8_t *dst_ip_addr, uint16_t dst_port, \
                           uint8_t ip_proto, uint8_t *src_ip_addr, \
                           uint16_t src_port, uint32_t vnode_cnt) {
 
-    if (vnode_cnt == 0) return 0;
-
-    /*
-    TODO: Explain IPv4 IPv6 octet selection /////
-    */
-
-    uint16_t dst_ip = ((dst_ip_addr[2] << 8) | dst_ip_addr[3]) * ip_proto;
-    uint64_t index = ((uint64_t)dst_ip << 48) | ((uint64_t)src_ip_addr[2] << 40) | ((uint64_t)src_ip_addr[3] << 32) | (dst_port << 16) | src_port;
+    uint16_t dst_ip = ((dst_ip_addr[14] << 8) | dst_ip_addr[15]) * ip_proto;
+    uint64_t index = ((uint64_t)dst_ip << 48) | ((uint64_t)src_ip_addr[14] << 40) | ((uint64_t)src_ip_addr[15] << 32) | (dst_port << 16) | src_port;
     uint32_t remainder = (uint32_t)(index % vnode_cnt);
-    /////printf("index %" PRIu64 ", remainder: %" PRIu64 "\n", index, remainder);
 
     return remainder;
 }
 
 
 static uint8_t is_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
-                            uint8_t dst_ip_str[INET6_ADDRSTRLEN], \
+                            int8_t dst_ip_str[INET6_ADDRSTRLEN], \
                             uint8_t *ip_proto, \
                             uint8_t src_ip_addr[sizeof(struct in6_addr)], \
-                            uint8_t src_ip_str[INET6_ADDRSTRLEN]) {
+                            int8_t src_ip_str[INET6_ADDRSTRLEN]) {
 
-    if (inet_pton(AF_INET, dst_ip_str, dst_ip_addr) == 0 ||
-        inet_pton(AF_INET, src_ip_str, src_ip_addr) == 0) {
+    if (inet_pton(AF_INET, (const char*)dst_ip_str, dst_ip_addr) == 0 ||
+        inet_pton(AF_INET, (const char*)src_ip_str, src_ip_addr) == 0) {
 
         return 0;
 
@@ -185,13 +85,13 @@ static uint8_t is_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
 
 
 static uint8_t is_ipv6_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
-                            uint8_t dst_ip_str[INET6_ADDRSTRLEN], \
+                            int8_t dst_ip_str[INET6_ADDRSTRLEN], \
                             uint8_t *ip_proto, \
                             uint8_t src_ip_addr[sizeof(struct in6_addr)], \
-                            uint8_t src_ip_str[INET6_ADDRSTRLEN]) {
+                            int8_t src_ip_str[INET6_ADDRSTRLEN]) {
 
-    if (inet_pton(AF_INET6, dst_ip_str, dst_ip_addr) == 0 ||
-        inet_pton(AF_INET6, src_ip_str, src_ip_addr) == 0) {
+    if (inet_pton(AF_INET6, (const char*)dst_ip_str, dst_ip_addr) == 0 ||
+        inet_pton(AF_INET6, (const char*)src_ip_str, src_ip_addr) == 0) {
 
         return 0;
 
@@ -220,9 +120,9 @@ static uint8_t is_tcp_udp(uint8_t *ip_proto) {
 }
 
 
-static int32_t read_ip_flow(uint8_t dst_ip_str[INET6_ADDRSTRLEN], \
+static int32_t read_ip_flow(int8_t dst_ip_str[INET6_ADDRSTRLEN], \
                             uint16_t *dst_port, uint8_t *ip_proto, \
-                            uint8_t src_ip_str[INET6_ADDRSTRLEN], \
+                            int8_t src_ip_str[INET6_ADDRSTRLEN], \
                             uint16_t *src_port) {
 
 
@@ -282,4 +182,107 @@ static int32_t read_ip_flow(uint8_t dst_ip_str[INET6_ADDRSTRLEN], \
     }
 
     return EXIT_SUCCESS;
+
+}
+
+
+static void test_hash(uint8_t is_ipv6, uint32_t vnode_cnt) {
+
+    uint8_t dst_ip_addr[sizeof(struct in6_addr)];
+    uint16_t dst_port;
+    uint8_t ip_proto;
+    uint8_t src_ip_addr[sizeof(struct in6_addr)];
+    uint16_t src_port;
+
+    uint32_t distribution[vnode_cnt];
+
+    memset(dst_ip_addr, 0, sizeof(struct in6_addr));
+    memset(src_ip_addr, 0, sizeof(struct in6_addr));
+    memset(&distribution, 0, (sizeof(uint32_t)*vnode_cnt));
+
+
+    ip_proto = (rand() % 2) ? 6 : 17;
+
+    if (!is_ipv6) {
+
+        for (uint16_t a = 0; a <= 255; a += 1) {
+
+            dst_ip_addr[2] = a;
+
+            for (uint16_t b = 0; b <= 255; b += 1) {
+            
+                dst_ip_addr[3] = b;
+
+                for (uint16_t c = 0; c <= 255; c += 1) {
+            
+                    src_ip_addr[2] = c;
+                
+                    for (uint16_t d = 0; d <= 255; d += 1) {
+            
+                        src_ip_addr[3] = d;
+
+                        for (uint32_t e = 0; e <= 65535; e += 1) {
+                        
+                            dst_port = e;
+
+                            for (uint32_t f = 0; f <= 65535; f += 1) {
+
+                                src_port  = f;
+
+                                uint32_t index = hash_ipv4(dst_ip_addr, dst_port, \
+                                                           ip_proto, src_ip_addr, \
+                                                           src_port, vnode_cnt);
+                                distribution[index] += 1;
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    } else { // IPv6
+
+        for (uint16_t a = 0; a <= 255; a += 1) {
+
+            dst_ip_addr[14] = a;
+
+            for (uint16_t b = 0; b <= 255; b += 1) {
+            
+                dst_ip_addr[15] = b;
+
+                for (uint16_t c = 0; c <= 255; c += 1) {
+            
+                    src_ip_addr[14] = c;
+                
+                    for (uint16_t d = 0; d <= 255; d += 1) {
+            
+                        src_ip_addr[5] = d;
+
+                        for (uint32_t e = 0; e <= 65535; e += 1) {
+                        
+                            dst_port = e;
+
+                            for (uint32_t f = 0; f <= 65535; f += 1) {
+
+                                src_port  = f;
+
+                                uint32_t index = hash_ipv6(dst_ip_addr, dst_port, \
+                                                           ip_proto, src_ip_addr, \
+                                                           src_port, vnode_cnt);
+                                distribution[index] += 1;
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for(uint32_t i = 0; i < vnode_cnt; i += 1) {
+        printf("%" PRIu32 ":%" PRIu32 " ", i, distribution[i]);
+    }
+    printf("\n");
+
 }
