@@ -12,7 +12,6 @@ static int32_t node_add(struct node *root_node, void *val) {
     }
 
     if (root_node->next == NULL) {
-        /////root_node = new_node;
         root_node->prev = root_node;
         root_node->next = root_node;
         root_node->val = val;
@@ -40,8 +39,6 @@ static void node_delete(struct node* node) {
         node->next = NULL;
         node->prev = NULL;
         node->val = NULL;
-        /////free(node);
-        /////node = NULL;
     } else {
         node->prev->next = node->next;
         node->next->prev = node->prev;
@@ -128,8 +125,12 @@ static void node_print(struct node *node) {
 
     if (node->next == NULL) return;
 
-    printf("node = %p, prev = %p, next = %p, val = %p\n", 
-           node, node->prev, node->next, node->val);
+    printf("node: %p {\n"
+           " prev = %p,\n"
+           " next = %p,\n"
+           " val = %p\n"
+           "}\n", 
+           (void*)node, (void*)node->prev, (void*)node->next, node->val);
 
 }
 
@@ -203,6 +204,7 @@ static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, \
 
     }
 
+    printf("Added pysical next-hop entry\n");
     return EXIT_SUCCESS;
 
 }
@@ -222,6 +224,8 @@ static void pnode_delete(uint32_t *pnode_cnt, struct node *root_pnode, \
 
         node_delete(root_pnode->prev);
         if (*pnode_cnt > 0) *pnode_cnt -= 1;
+
+        printf("Deleted physical next-hop entry\n");
     
     }
 

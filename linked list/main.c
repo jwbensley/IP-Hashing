@@ -1,4 +1,5 @@
 
+#include <netinet/in.h>  // in6_addr
 #include <arpa/inet.h>   // INET6_ADDRSTRLEN, inet_ntop(), inet_pton()
 #include <inttypes.h>    // uintN_t, PRIuN, SCNuN
 #include <sys/socket.h>  // AF_INET, AF_INET6
@@ -12,7 +13,7 @@
 #include "hash.c"
 
 
-int32_t main(uint32_t argc, char argv[]) {
+int32_t main(int32_t argc, char *argv[]) {
 
     uint32_t pnode_cnt = 0;
     uint32_t vnode_cnt = 0;
@@ -20,10 +21,14 @@ int32_t main(uint32_t argc, char argv[]) {
     struct node *root_pnode = node_init();
     struct node *root_vnode = node_init();
 
-    uint8_t dst_ip_addr[sizeof(struct in6_addr)]; // Numerical IP address
-    uint8_t dst_ip_str[INET6_ADDRSTRLEN];         // String form IP address
+    uint8_t dst_ip_addr[sizeof(struct in6_addr)];    // IP address as denary
+    memset(dst_ip_addr, 0, sizeof(struct in6_addr));
+    int8_t dst_ip_str[INET6_ADDRSTRLEN];             // IP address as string
+    
     uint8_t src_ip_addr[sizeof(struct in6_addr)];
-    uint8_t src_ip_str[INET6_ADDRSTRLEN];
+    memset(src_ip_addr, 0, sizeof(struct in6_addr));
+    int8_t src_ip_str[INET6_ADDRSTRLEN];
+
     uint8_t ip_proto = 0;
     uint16_t dst_port = 0;
     uint16_t src_port = 0;
@@ -35,15 +40,13 @@ int32_t main(uint32_t argc, char argv[]) {
 
 
     // Add some initial next-hop nodes
-    for (uint8_t i = 0; i < 5; i += 1) {
+    /*for (uint8_t i = 0; i < 5; i += 1) {
         if (pnode_add(&pnode_cnt, root_pnode, root_vnode, &vnode_cnt) \
             != EXIT_SUCCESS)
             return EXIT_FAILURE;
-    }
+    }*/
 
-    test_ipv4_hash((rand() % 2), vnode_cnt);
-    return 0;
-
+    
     while (menu) {
 
         switch(menu_opt) {
@@ -52,6 +55,8 @@ int32_t main(uint32_t argc, char argv[]) {
 
                 menu_opt = 0;
 
+                if (vnode_cnt == 0) break;
+
                 generate_ipv4_flow(dst_ip_addr, &dst_port, &ip_proto, \
                                    src_ip_addr, &src_port, (rand() % 2));
 
@@ -59,14 +64,17 @@ int32_t main(uint32_t argc, char argv[]) {
                                                  ip_proto, src_ip_addr, \
                                                  src_port, vnode_cnt);
 
-                node_print(node_get(root_vnode, vnode_index));        
-            
+                printf("Hashed to virtual node:\n");
+                node_print(node_get(root_vnode, vnode_index));
+
                 break;
 
 
             case (2): // Hash a specific 5 tuple
 
                 menu_opt = 0;
+
+                if (vnode_cnt == 0) break;
                 
                 if (read_ip_flow(dst_ip_str, &dst_port, &ip_proto, \
                                  src_ip_str, &src_port) == EXIT_FAILURE) {
@@ -77,14 +85,22 @@ int32_t main(uint32_t argc, char argv[]) {
                 if (is_ipv6_flow(dst_ip_addr, dst_ip_str, &ip_proto, \
                                  src_ip_addr, src_ip_str)) {
                 
-                    printf("hash_ipv6\n");
-                    //hash_ipv6(dst_ip_addr, src_ip_addr, ip_proto, dst_port, src_port);
+                    uint32_t vnode_index = hash_ipv6(dst_ip_addr, dst_port, \
+                                                     ip_proto, src_ip_addr, \
+                                                     src_port, vnode_cnt);
+
+                    printf("Hashed to virtual node:\n");
+                    node_print(node_get(root_vnode, vnode_index));
 
                 } else if (is_ipv4_flow(dst_ip_addr, dst_ip_str, &ip_proto, \
                                         src_ip_addr, src_ip_str)) {
                 
-                    hash_ipv4(dst_ip_addr, dst_port, ip_proto, src_ip_addr, \
-                              src_port, vnode_cnt);
+                    uint32_t vnode_index =  hash_ipv4(dst_ip_addr, dst_port, \
+                                                      ip_proto, src_ip_addr, \
+                                                      src_port, vnode_cnt);
+
+                    printf("Hashed to virtual node:\n");
+                    node_print(node_get(root_vnode, vnode_index));
                 
                 } else {
 
@@ -92,6 +108,13 @@ int32_t main(uint32_t argc, char argv[]) {
                 
                 }
                 
+                break;
+
+
+            case(3): // Hash every possible value
+
+                menu_opt = 0;
+                test_hash((rand() % 2), vnode_cnt);
                 break;
 
 
@@ -116,9 +139,9 @@ int32_t main(uint32_t argc, char argv[]) {
             case(7): // Print linked-lists
 
                 menu_opt = 0;
-                printf("pnodes: %" PRIu32 "\n", pnode_cnt);
+                printf("Pysical nodes: %" PRIu32 "\n", pnode_cnt);
                 node_print_all(root_pnode);
-                printf("vnodes: %" PRIu32 "\n", vnode_cnt);
+                printf("Virtual nodes: %" PRIu32 "\n", vnode_cnt);
                 node_print_all(root_vnode);
                 break;
 
@@ -135,14 +158,16 @@ int32_t main(uint32_t argc, char argv[]) {
                 printf("\n");
                 printf("1 - Hash a random 5 tuple\n");
                 printf("2 - Hash a specific 5 tuple\n");
+                printf("3 - Hash every possible value - do not use!\n");
                 printf("5 - Add a next-hop index\n");
                 printf("6 - Delete a next-hop index\n");
                 printf("7 - Print the linked-lists\n");
                 printf("9 - Quit\n");
                 printf("Type a number and press enter: ");
-                uint8_t menu_char = getchar();
-                menu_opt = strtoul(&menu_char, NULL, 0);
-                // Consume any additional characters on stdin:
+                int8_t menu_char = getchar();
+                menu_opt = strtoul((const char*)&menu_char, NULL, 0);
+                // Consume any additional characters on stdin from additional
+                // erroneous user input
                 while (fgetc(stdin) != '\n') { }
 
         }
