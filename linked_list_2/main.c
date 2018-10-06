@@ -16,7 +16,7 @@
 int32_t main(int32_t argc, char *argv[]) {
 
     uint32_t pnode_cnt = 0;
-    uint32_t vnode_cnt = 0;
+    uint32_t vnode_cnt = 5;
 
     struct node *root_pnode = node_init();
     struct node *root_vnode = node_init();
@@ -29,7 +29,7 @@ int32_t main(int32_t argc, char *argv[]) {
     memset(src_ip_addr, 0, sizeof(struct in6_addr));
     int8_t src_ip_str[INET6_ADDRSTRLEN];
 
-    uint8_t ip_proto = 0;
+    uint8_t  ip_proto = 0;
     uint16_t dst_port = 0;
     uint16_t src_port = 0;
 
@@ -46,6 +46,13 @@ int32_t main(int32_t argc, char *argv[]) {
             return EXIT_FAILURE;
     }*/
 
+    // Create the vnodes
+    for (uint8_t i = 0; i < vnode_cnt; i += 1) {
+        if (node_add(root_vnode, NULL) != EXIT_SUCCESS)
+            return EXIT_FAILURE;
+    }
+
+
     
     while (menu) {
 
@@ -55,7 +62,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
                 menu_opt = 0;
 
-                if (vnode_cnt == 0) break;
+                if (pnode_cnt == 0) break;
 
                 generate_ipv4_flow(dst_ip_addr, &dst_port, &ip_proto, \
                                    src_ip_addr, &src_port, (rand() % 2));
@@ -74,7 +81,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
                 menu_opt = 0;
 
-                if (vnode_cnt == 0) break;
+                if (pnode_cnt == 0) break;
                 
                 if (read_ip_flow(dst_ip_str, &dst_port, &ip_proto, \
                                  src_ip_str, &src_port) == EXIT_FAILURE) {
@@ -139,10 +146,17 @@ int32_t main(int32_t argc, char *argv[]) {
             case(7): // Print linked-lists
 
                 menu_opt = 0;
-                printf("Pysical nodes: %" PRIu32 "\n", pnode_cnt);
+                printf("Physical nodes: %" PRIu32 "\n", pnode_cnt);
                 node_print_all(root_pnode);
                 printf("Virtual nodes: %" PRIu32 "\n", vnode_cnt);
                 node_print_all(root_vnode);
+                break;
+
+
+            case(8): // Print the number of vnodes that point to each pnode
+
+                menu_opt = 0;
+                print_vnode_cnt(pnode_cnt, root_pnode, root_vnode, vnode_cnt);
                 break;
 
 
@@ -162,11 +176,12 @@ int32_t main(int32_t argc, char *argv[]) {
                 printf("5 - Add a next-hop index\n");
                 printf("6 - Delete a next-hop index\n");
                 printf("7 - Print the linked-lists\n");
+                printf("8 - Print node counts\n");
                 printf("9 - Quit\n");
                 printf("Type a number and press enter: ");
                 int8_t menu_char = getchar();
                 menu_opt = strtoul((const char*)&menu_char, NULL, 0);
-                // Consume any additional characters on stdin from additional
+                // Consume any additional characters on stdin from any
                 // erroneous user input
                 while (fgetc(stdin) != '\n') { }
 
