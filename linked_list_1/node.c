@@ -104,6 +104,7 @@ static struct node *node_get(struct node *root_node, uint32_t node_idx) {
     }
 
     return cur_node;
+    
 }
 
 
