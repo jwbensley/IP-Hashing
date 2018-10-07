@@ -208,10 +208,16 @@ static void pnode_delete(uint32_t *pnode_cnt, struct node *root_pnode, \
         for (uint8_t i = 1; i <= *vnode_cnt; i += 1) {
             if (*pnode_cnt == 1) {
                 node_set(root_vnode, (i-1), NULL);
-            }
-            else if (i % *pnode_cnt == 0) {
+            } else if (i % *pnode_cnt == 0) {
                 void *prev = node_get_val(root_vnode, (i-2));
+                if (prev == node_get_val(root_vnode, (i-1))) {
+                    printf("Same as prev!\n");
+                    printf("Was %p ", prev);
+                    prev = node_get_val(root_vnode, (i-3));
+                    printf("Now %p\n", prev);
+                }
                 node_set(root_vnode, (i-1), prev);
+                printf("%d, %p\n", i, prev);
             }
         }
 
@@ -228,6 +234,7 @@ static void pnode_delete(uint32_t *pnode_cnt, struct node *root_pnode, \
 static void print_vnode_cnt(uint32_t pnode_cnt, struct node *root_pnode, \
                             struct node *root_vnode, uint32_t vnode_cnt) {
 
+    uint32_t total = 0;
     for (uint32_t i = 0; i < pnode_cnt; i+= 1) {
         
         uint32_t count = 0;
@@ -237,6 +244,7 @@ static void print_vnode_cnt(uint32_t pnode_cnt, struct node *root_pnode, \
             void *val = node_get_val(root_vnode, j);
             if (val == pnode) {
                 count += 1;
+                total += 1;
             }
         }
 
@@ -244,4 +252,7 @@ static void print_vnode_cnt(uint32_t pnode_cnt, struct node *root_pnode, \
                count, i, (void*)pnode);
 
     }
+
+    printf("%" PRIu32 " vnodes counted\n", total);
+
 }
