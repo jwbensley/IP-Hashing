@@ -12,7 +12,6 @@ static int32_t node_add(struct node *root_node, void *val) {
     }
 
     if (root_node->next == NULL) {
-        /////root_node = new_node;
         root_node->prev = root_node;
         root_node->next = root_node;
         root_node->val = val;
@@ -40,8 +39,6 @@ static void node_delete(struct node* node) {
         node->next = NULL;
         node->prev = NULL;
         node->val = NULL;
-        /////free(node);
-        /////node = NULL;
     } else {
         node->prev->next = node->next;
         node->next->prev = node->prev;
@@ -102,11 +99,20 @@ static struct node *node_get(struct node *root_node, uint32_t node_idx) {
 
     struct node *cur_node = root_node;
 
-    for (uint32_t i = 0; i < node_idx; i++) {
+    for (uint32_t i = 0; i < node_idx; i+=1) {
         cur_node = cur_node->next;
     }
 
     return cur_node;
+    
+}
+
+
+static void* node_get_val(struct node *root_node, uint32_t node_idx) {
+
+    struct node *node = node_get(root_node, node_idx);
+    return node->val;
+
 }
 
 
@@ -128,8 +134,12 @@ static void node_print(struct node *node) {
 
     if (node->next == NULL) return;
 
-    printf("node = %p, prev = %p, next = %p, val = %p\n", 
-           node, node->prev, node->next, node->val);
+    printf("node: %p {\n"
+           " prev = %p,\n"
+           " next = %p,\n"
+           " val = %p\n"
+           "}\n", 
+           (void*)node, (void*)node->prev, (void*)node->next, node->val);
 
 }
 
@@ -152,6 +162,7 @@ static void node_print_all(struct node *root_node) {
     return;
 
 }
+
 
 static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, \
                          struct node *root_vnode, uint32_t *vnode_cnt) {
@@ -203,9 +214,11 @@ static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, \
 
     }
 
+    printf("Added next-hop entry\n");
     return EXIT_SUCCESS;
 
 }
+
 
 static void pnode_delete(uint32_t *pnode_cnt, struct node *root_pnode, \
                             struct node *root_vnode, uint32_t *vnode_cnt) {
@@ -222,7 +235,36 @@ static void pnode_delete(uint32_t *pnode_cnt, struct node *root_pnode, \
 
         node_delete(root_pnode->prev);
         if (*pnode_cnt > 0) *pnode_cnt -= 1;
+
+        printf("Deleted next-hop entry\n");
     
     }
+
+}
+
+
+static void print_vnode_cnt(uint32_t pnode_cnt, struct node *root_pnode, \
+                            struct node *root_vnode, uint32_t vnode_cnt) {
+
+    uint32_t total = 0;
+    for (uint32_t i = 0; i < pnode_cnt; i+= 1) {
+        
+        uint32_t count = 0;
+        struct node *pnode = node_get(root_pnode, i);
+
+        for(uint32_t j = 0; j < vnode_cnt; j += 1) {
+            void *val = node_get_val(root_vnode, j);
+            if (val == pnode) {
+                count += 1;
+                total += 1;
+            }
+        }
+
+        printf("%" PRIu32 " vnodes point to pnode %" PRIu32 " (%p)\n",
+               count, i, (void*)pnode);
+
+    }
+
+    printf("%" PRIu32 " vnodes counted\n", total);
 
 }
