@@ -35,6 +35,9 @@ static void node_print(struct node *node);
 // Print the details for all nodes in a linked list at root_node
 static void node_print_all(struct node *root_node);
 
+// Set the value of a node at a specific index within the linked list
+static void node_set(struct node *root_node, uint32_t node_idx, void *val);
+
 // Add a real next-hop entry to the linked list
 static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, \
                          struct node *root_vnode, uint32_t *vnode_cnt);

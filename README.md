@@ -12,5 +12,5 @@ forwarding lookups and ECMP.
 ### Link List v1
 
 This is an example in C of how to implement a linked list. Two linked lists  
-are used to implement a consisten ECMP method using a poor mans version of  
+are used to implement a "consisten ECMP method" using a poor mans version of  
 a consistant hash ring a.k.a consistent circular hash.
