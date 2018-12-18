@@ -99,12 +99,12 @@ static struct node *node_get(struct node *root_node, uint32_t node_idx) {
 
     struct node *cur_node = root_node;
 
-    for (uint32_t i = 0; i < node_idx; i+=1) {
+    for (uint32_t i = 0; i < node_idx; i+= 1) {
         cur_node = cur_node->next;
     }
 
     return cur_node;
-    
+
 }
 
 
@@ -164,54 +164,35 @@ static void node_print_all(struct node *root_node) {
 }
 
 
+static void node_set(struct node *root_node, uint32_t node_idx, void *val) {
+
+    struct node *cur_node = root_node;
+
+    for (uint32_t i = 0; i < node_idx; i+= 1) {
+        cur_node = cur_node->next;
+    }
+    cur_node->val = val;
+
+    return;
+}
+
+
 static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, \
                          struct node *root_vnode, uint32_t *vnode_cnt) {
 
-    if (*pnode_cnt == 0) {
+    if (*pnode_cnt == *vnode_cnt)
+        return EXIT_SUCCESS;
 
-        if (node_add(root_pnode, NULL) != EXIT_SUCCESS)
-            return EXIT_FAILURE;
-        
-        *pnode_cnt += 1;
-        
-        if (node_add(root_vnode, root_pnode) != EXIT_SUCCESS)
-            return EXIT_FAILURE;
-        
-        *vnode_cnt += 1;
-        
-    } else if (*pnode_cnt == 1) {
+    if (node_add(root_pnode, NULL) != EXIT_SUCCESS)
+        return EXIT_FAILURE;
+    *pnode_cnt += 1;
 
-        if (node_add(root_pnode, NULL) != EXIT_SUCCESS)
-            return EXIT_FAILURE;
-        
-        *pnode_cnt += 1;
-        
-        if (node_add(root_vnode, root_pnode->prev) != EXIT_SUCCESS)
-            return EXIT_FAILURE;
-        
-        *vnode_cnt += 1;
-    
-    } else {
 
-        if (node_add(root_pnode, NULL) != EXIT_SUCCESS)
-            return EXIT_FAILURE;
-        
-        *pnode_cnt += 1;
-
-        for (uint32_t i = 0; i < *pnode_cnt; i += 1) {
-            if (node_add(root_vnode, node_get(root_pnode, i)) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
-            
-            *vnode_cnt += 1;
+    struct node *pnode_addr = node_get(root_pnode, (*pnode_cnt)-1);
+    for (uint8_t i = 1; i <= *vnode_cnt; i += 1) {
+        if (i % *pnode_cnt == 0) {
+            node_set(root_vnode, (i-1), pnode_addr);
         }
-
-        while (*vnode_cnt < (*pnode_cnt * (*pnode_cnt - 1))) {
-            if (node_add(root_vnode, root_pnode->prev) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
-            
-            *vnode_cnt += 1;
-        }
-
     }
 
     printf("Added next-hop entry\n");
@@ -225,12 +206,20 @@ static void pnode_delete(uint32_t *pnode_cnt, struct node *root_pnode, \
 
     if (*pnode_cnt > 0) {
 
-        if (*vnode_cnt == 1) {
-            node_delete(root_vnode);
-            *vnode_cnt -= 1;
-
-        } else if (*vnode_cnt > 1) {
-            *vnode_cnt -= node_delete_by_val(root_vnode, root_pnode->prev);
+        for (uint8_t i = 1; i <= *vnode_cnt; i += 1) {
+            if (*pnode_cnt == 1) {
+                node_set(root_vnode, (i-1), NULL);
+            } else if (i % *pnode_cnt == 0) {
+                void *prev = node_get_val(root_vnode, (i-2));
+                if (prev == node_get_val(root_vnode, (i-1))) {
+                    printf("Same as prev!\n");
+                    printf("Was %p ", prev);
+                    prev = node_get_val(root_vnode, (i-3));
+                    printf("Now %p\n", prev);
+                }
+                node_set(root_vnode, (i-1), prev);
+                printf("%d, %p\n", i, prev);
+            }
         }
 
         node_delete(root_pnode->prev);

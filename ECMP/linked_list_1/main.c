@@ -16,7 +16,7 @@
 int32_t main(int32_t argc, char *argv[]) {
 
     uint32_t pnode_cnt = 0;
-    uint32_t vnode_cnt = 0;
+    uint32_t vnode_cnt = 1000;
 
     struct node *root_pnode = node_init();
     struct node *root_vnode = node_init();
@@ -37,6 +37,13 @@ int32_t main(int32_t argc, char *argv[]) {
     uint8_t menu = 1;
 
     srand(time(NULL));
+
+
+    // Create the vnodes
+    for (uint8_t i = 0; i < vnode_cnt; i += 1) {
+        if (node_add(root_vnode, NULL) != EXIT_SUCCESS)
+            return EXIT_FAILURE;
+    }
 
     
     while (menu) {
