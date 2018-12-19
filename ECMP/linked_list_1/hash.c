@@ -37,7 +37,12 @@ static uint32_t hash_ipv4(uint8_t *dst_ip_addr, uint16_t dst_port, \
                           uint16_t src_port, uint32_t vnode_cnt) {
 
     uint16_t dst_ip = ((dst_ip_addr[2] << 8) | dst_ip_addr[3]) * ip_proto;
-    uint64_t index = ((uint64_t)dst_ip << 48) | ((uint64_t)src_ip_addr[2] << 40) | ((uint64_t)src_ip_addr[3] << 32) | (dst_port << 16) | src_port;
+
+    uint64_t index = ((uint64_t)dst_ip << 48) | \
+                     ((uint64_t)src_ip_addr[2] << 40) | \
+                     ((uint64_t)src_ip_addr[3] << 32) | \
+                     (dst_port << 16) | src_port;
+    
     uint32_t remainder = (uint32_t)(index % vnode_cnt);
 
     return remainder;
@@ -49,7 +54,12 @@ static uint32_t hash_ipv6(uint8_t *dst_ip_addr, uint16_t dst_port, \
                           uint16_t src_port, uint32_t vnode_cnt) {
 
     uint16_t dst_ip = ((dst_ip_addr[14] << 8) | dst_ip_addr[15]) * ip_proto;
-    uint64_t index = ((uint64_t)dst_ip << 48) | ((uint64_t)src_ip_addr[14] << 40) | ((uint64_t)src_ip_addr[15] << 32) | (dst_port << 16) | src_port;
+
+    uint64_t index = ((uint64_t)dst_ip << 48) | \
+                     ((uint64_t)src_ip_addr[14] << 40) | \
+                     ((uint64_t)src_ip_addr[15] << 32) | \
+                     (dst_port << 16) | src_port;
+
     uint32_t remainder = (uint32_t)(index % vnode_cnt);
 
     return remainder;
@@ -67,18 +77,12 @@ static uint8_t is_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
 
         return 0;
 
+    } else if (is_tcp_udp(ip_proto)) {
+        return 1;
+
     } else {
-
-        if (is_tcp_udp(ip_proto)) {
-
-            return 1;
-
-        } else {
-
-            return 0;
+        return 0;
         
-        }
-
     }
 
 }
@@ -92,31 +96,26 @@ static uint8_t is_ipv6_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
 
     if (inet_pton(AF_INET6, (const char*)dst_ip_str, dst_ip_addr) == 0 ||
         inet_pton(AF_INET6, (const char*)src_ip_str, src_ip_addr) == 0) {
-
         return 0;
 
+    } else if (is_tcp_udp(ip_proto)) {
+        return 1;
+
     } else {
-
-        if (is_tcp_udp(ip_proto)) {
-
-            return 1;
-
-        } else {
-
-            return 0;
-        
-        }
+        return 0;
 
     }
 }
 
 
 static uint8_t is_tcp_udp(uint8_t *ip_proto) {
+
     if (*ip_proto == 6 || *ip_proto == 17) {
         return 1;
     } else {
         return 0;
     }
+
 }
 
 
@@ -125,9 +124,9 @@ static int32_t read_ip_flow(int8_t dst_ip_str[INET6_ADDRSTRLEN], \
                             int8_t src_ip_str[INET6_ADDRSTRLEN], \
                             uint16_t *src_port) {
 
-
     printf("Enter destination IP address: ");
     int32_t ret = scanf("%s", dst_ip_str);
+
     if (ret == 0) {
         while (fgetc(stdin) != '\n') { }
         printf("\n");
@@ -139,6 +138,7 @@ static int32_t read_ip_flow(int8_t dst_ip_str[INET6_ADDRSTRLEN], \
 
     printf("Enter source IP address: ");
     ret = scanf("%s", src_ip_str);
+
     if (ret == 0) {
         while (fgetc(stdin) != '\n') { }
         printf("\n");
@@ -150,6 +150,7 @@ static int32_t read_ip_flow(int8_t dst_ip_str[INET6_ADDRSTRLEN], \
     
     printf("Enter IP protocol [6 or 17]: ");
     ret = scanf("%" SCNu8, ip_proto);
+
     if (ret == 0) {
         while (fgetc(stdin) != '\n') { }
         printf("\n");
@@ -161,6 +162,7 @@ static int32_t read_ip_flow(int8_t dst_ip_str[INET6_ADDRSTRLEN], \
 
     printf("Enter destination port number: ");
     ret = scanf("%" SCNu16, dst_port);
+
     if (ret == 0) {
         while (fgetc(stdin) != '\n') { }
         printf("\n");
@@ -172,6 +174,7 @@ static int32_t read_ip_flow(int8_t dst_ip_str[INET6_ADDRSTRLEN], \
 
     printf("Enter source port number: ");
     ret = scanf("%" SCNu16, src_port);
+
     if (ret == 0) {
         while (fgetc(stdin) != '\n') { }
         printf("\n");
