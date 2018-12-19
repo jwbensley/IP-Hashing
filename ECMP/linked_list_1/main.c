@@ -39,10 +39,12 @@ int32_t main(int32_t argc, char *argv[]) {
     srand(time(NULL));
 
 
-    // Create the vnodes
-    for (uint8_t i = 0; i < vnode_cnt; i += 1) {
-        if (node_add(root_vnode, NULL) != EXIT_SUCCESS)
+    // Create the initial vnodes
+    for (uint32_t i = 0; i < vnode_cnt; i += 1) {
+        if (node_add(root_vnode, NULL) != EXIT_SUCCESS) {
+            printf("Failed to add initial vnode %" PRIu32 "\n", i);
             return EXIT_FAILURE;
+        }
     }
 
     

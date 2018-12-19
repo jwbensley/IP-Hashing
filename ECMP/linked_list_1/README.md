@@ -76,6 +76,10 @@ distributed to an existing pnode shall continue to do so uninterrupted, the
 traffic that was being distributed to the pnode which was removed shall be  
 evenly distributed over the remaining pnodes.  
 
+This example creates an initial vnode list with 1000 entries linked together. This is an arbitrary number that is significantly higher than the expected number of pnodes. It production networks devices typically limits of the number of ECMP routes or LAG members that can be used: 32, 64, 128 and 256 and typical maximal values device vendors support. This example doesn't allow the user to create more pnodes than vnode entries because obviously pnodes would be unused if a vnode didn't point to them. The ratio of vnodes that point to any one pnode is always the same as any other pnode meaning that in the event that the number of vnodes and pnodes became equal (if in this example 1000 pnodes were added) the traffic distribution should be even for any number of pnodes from 1 to 1000.
+
+Due to the generic hashing function all possible input key 5 tuples would evenly hash over all possible vnodes (and thus pnodes) however in reality a network device is unlikely to receive a perfect distribution of traffic. 
+
 [1] This is an example of consistent traffic distribution meaning the same  
 set of traffic `s1` is consistently forwarding to destination `d1` ignorant  
 of the traffic volume or load.  
@@ -84,3 +88,7 @@ of the traffic volume or load.
 be thought of as "virtual nodes" which could be a next-hop entry in a RIB or  
 FIB and "physical nodes" which could be the resolved egress interface index  
 or adjacency index to reach that next-hop.  
+
+
+### Example
+
