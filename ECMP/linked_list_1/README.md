@@ -18,6 +18,7 @@ adjacency entries.
 
 ### References
 
+* https://en.wikipedia.org/wiki/Doubly_linked_list
 * https://www.codeproject.com/articles/56138/consistent-hashing
 * https://github.com/chrismoos/hash-ring
 
@@ -25,7 +26,7 @@ adjacency entries.
 ### Details
 
 When the program starts a linked list of arbitrary length is created (1000  
-entries by default). This first list is a list of "virtual nodes" (vnodes).  
+entries by default). This first list is a list of "virtual nodes" (vnodes).  To be specific a doubly-linked list is used for both lists (as opposed to a singly-linked list).
 A second linked list is created of zero length. The second list is for  
 "physical nodes" (pnodes) [2]. As each pnode is added to the pnodes linked  
 list a portion of the vnodes are updated to point to the new pnode. An equal  
@@ -65,6 +66,14 @@ return an index into the vnode list and in turn a pnode entry. In a
 production network the hash function would need to be more complex or use  
 some sort of feedback mechanism to improve the evenness of traffic  
 distribution over the pnodes.  
+
+There will always be collisions in the hash function, especially when using some form of `modulus()`. ECMP should aim to reduce collisions because collisions result in unequal distribution of traffic unless the collisions are known to be equal somehow.
+
+| Data Structure     | Access | Search | Insertion | Deletion |
+|--------------------|--------|--------|-----------|----------|
+| Doubly-Linked List | Θ(n)   | Θ(n)   | Θ(1)      | Θ(1)     |
+| Hash Table         | N/A    | Θ(1)   | Θ(1)      | Θ(1)     |
+
 
 This example allows for a poor man’s consistent hash ring implementation.  
 When a new pnode is added to the 2nd linked list only the required vnodes are  
