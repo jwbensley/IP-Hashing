@@ -58,8 +58,10 @@ int32_t main(int32_t argc, char *argv[]) {
 
                 if (pnode_cnt == 0) break;
 
-                generate_ipv4_flow(dst_ip_addr, &dst_port, &ip_proto, \
-                                   src_ip_addr, &src_port, (rand() % 2));
+                generate_flow(dst_ip_addr, &dst_port, &ip_proto, \
+                              src_ip_addr, &src_port, (rand() % 2));
+
+                
 
                 uint32_t vnode_index = hash_ipv4(dst_ip_addr, dst_port, \
                                                  ip_proto, src_ip_addr, \
