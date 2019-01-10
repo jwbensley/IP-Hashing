@@ -213,6 +213,8 @@ static void pnode_delete(uint32_t *pnode_cnt, struct node *root_pnode, \
 
             if (*pnode_cnt == 1) {
                 node_set(root_vnode, (i-1), NULL);
+            } else if (*pnode_cnt == 2) {
+                node_set(root_vnode, (i-1), node_get_val(root_vnode, 0));
             } else if (i % *pnode_cnt == 0) {
                 void *prev = node_get_val(root_vnode, (i-2));
                 if (prev == node_get_val(root_vnode, (i-1))) {

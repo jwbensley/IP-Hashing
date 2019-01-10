@@ -2,11 +2,11 @@
 #ifndef _HASH_H_
 #define _HASH_H_
 
-// Generate a random IPv4 flow 5-tuple
-static void generate_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in_addr)], \
-                             uint16_t *dst_port, uint8_t *ip_proto, \
-                             uint8_t src_ip_addr[sizeof(struct in_addr)], \
-                             uint16_t *src_port, uint8_t is_ipv6);
+// Generate a random IP flow 5-tuple
+static void generate_flow(uint8_t dst_ip_addr[sizeof(struct in_addr)], \
+                          uint16_t *dst_port, uint8_t *ip_proto, \
+                          uint8_t src_ip_addr[sizeof(struct in_addr)], \
+                          uint16_t *src_port, uint8_t is_ipv6);
 
 // Return an index into the virtual node linked-list based on an IPv4 5-tuple
 static uint32_t hash_ipv4(uint8_t *dst_ip_addr, uint16_t dst_port, \

@@ -2,10 +2,10 @@
 #include "hash.h"
 
 
-static void generate_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
-                               uint16_t *dst_port, uint8_t *ip_proto, \
-                               uint8_t src_ip_addr[sizeof(struct in6_addr)], \
-                               uint16_t *src_port, uint8_t is_ipv6) {
+static void generate_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
+                          uint16_t *dst_port, uint8_t *ip_proto, \
+                          uint8_t src_ip_addr[sizeof(struct in6_addr)], \
+                          uint16_t *src_port, uint8_t is_ipv6) {
 
     dst_ip_addr[0] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
     dst_ip_addr[1] = (uint8_t)(255.0 * rand() / (RAND_MAX + 1.0));
@@ -28,6 +28,35 @@ static void generate_ipv4_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
 
     *src_port  = (uint16_t)(65535.0 * rand() / (RAND_MAX + 1.0));
     *dst_port = (uint16_t)(65535.0 * rand() / (RAND_MAX + 1.0));
+
+    if (*ip_proto == 6) {
+        printf("Generated TCP flow:\n");
+    } else {
+        printf("Generated UDP flow:\n");
+    }
+    if (is_ipv6) {
+        printf("%02hx%02hx:%02hx%02hx:%02hx%02hx:%02hx%02hx:%02hx%02hx"
+               "%02hx%02hx:%02hx%02hx:%02hx%02hx:%" PRIu16 " -> ",
+               src_ip_addr[0], src_ip_addr[1], src_ip_addr[2], src_ip_addr[3],
+               src_ip_addr[4], src_ip_addr[5], src_ip_addr[6], src_ip_addr[7],
+               src_ip_addr[8], src_ip_addr[9], src_ip_addr[10], src_ip_addr[11],
+               src_ip_addr[12], src_ip_addr[13], src_ip_addr[14], src_ip_addr[15],
+               *src_port);
+        printf("%02hx%02hx:%02hx%02hx:%02hx%02hx:%02hx%02hx:%02hx%02hx"
+               "%02hx%02hx:%02hx%02hx:%02hx%02hx:%" PRIu16 "\n",
+               dst_ip_addr[0], dst_ip_addr[1], dst_ip_addr[2], dst_ip_addr[3],
+               dst_ip_addr[4], dst_ip_addr[5], dst_ip_addr[6], dst_ip_addr[7],
+               dst_ip_addr[8], dst_ip_addr[9], dst_ip_addr[10], dst_ip_addr[11],
+               dst_ip_addr[12], dst_ip_addr[13], dst_ip_addr[14], dst_ip_addr[15],
+               *dst_port);
+    } else {
+        printf("%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8 ":%" PRIu16 " ->",
+               src_ip_addr[0], src_ip_addr[1], src_ip_addr[2], src_ip_addr[3],
+               *src_port);
+        printf("%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8 ":%" PRIu16 "\n",
+               dst_ip_addr[0], dst_ip_addr[1], dst_ip_addr[2], dst_ip_addr[3],
+               *dst_port);
+    }
 
 }
 
