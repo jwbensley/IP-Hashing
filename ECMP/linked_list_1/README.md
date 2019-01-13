@@ -149,5 +149,7 @@ The following example shows that after adding three pnodes the vnode point to a 
     <img src="https://github.com/jwbensley/jwbensley.github.io/blob/master/repos/IP-Hashing/ll1_example_1.svg">
 </p>
 
+![](https://github.com/jwbensley/jwbensley.github.io/blob/master/repos/IP-Hashing/ll1_example_1.svg)
+
 In this example 
 
