@@ -146,7 +146,7 @@ or adjacency index to reach a next-hop.
 The following example shows that after adding three pnodes the vnode point to a roughly equal share of pnodes (in this case 1000 pnodes can't be evenly devided by 3).  
 
 <p align="center">
-    <img src="https://github.com/jwbensley/IP-Hashing/tree/jwbensley-patch-1/ECMP/linked_list_1/ll1_example_1.svg">
+    <img src="https://github.com/jwbensley/jwbensley.github.io/blob/master/repos/IP-Hashing/ll1_example_1.svg">
 </p>
 
 In this example 
