@@ -145,7 +145,9 @@ or adjacency index to reach a next-hop.
 
 The following example shows that after adding three pnodes the vnode point to a roughly equal share of pnodes (in this case 1000 pnodes can't be evenly devided by 3).  
 
-![Adding pnodes](ll1_example_1.svg "Adding pnodes")  
+<p align="center">
+    <img src="ll1_example_1.svg">
+</p>
 
 In this example 
 
