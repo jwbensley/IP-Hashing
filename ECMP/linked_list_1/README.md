@@ -146,10 +146,10 @@ or adjacency index to reach a next-hop.
 The following example shows that after adding three pnodes the vnode point to a roughly equal share of pnodes (in this case 1000 pnodes can't be evenly devided by 3).  
 
 <p align="center">
-    <img src="https://github.com/jwbensley/jwbensley.github.io/blob/master/repos/IP-Hashing/ll1_example_1.svg">
+    <img src="https://github.com/jwbensley/jwbensley.github.io/blob/master/repos/IP-Hashing/test1.svg">
 </p>
 
-![](https://github.com/jwbensley/jwbensley.github.io/blob/master/repos/IP-Hashing/ll1_example_1.svg)
+![](https://github.com/jwbensley/jwbensley.github.io/blob/master/repos/IP-Hashing/test1.svg)
 
 <p align="center">
     <img src="https://nbedos.github.io/termtosvg/examples/awesome_window_frame.svg">
