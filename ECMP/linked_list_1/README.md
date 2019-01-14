@@ -4,7 +4,6 @@
 
  * [Overview](#overview)
  * [References](#references)
- * [Linked List Operations](#linked-list-operations)
  * [Basic Principals](#basic-principals)
  * [Detailed Workings](#detailed-workings)
  * [Example Output](#example-output)
@@ -164,7 +163,7 @@ flow to the same next-hop.
 
 ![Hashing](https://null.53bits.co.uk/uploads/programming/github/ip-hashing/ecmp/linked_list_1/ll1_example_2.svg "Hashing")  
 
-If the recording is too fast the CLI output is here: [ll2_example_2.txt](ll2_example_2.txt)  
+If the recording is too fast the CLI output is here: [ll1_example_2.txt](ll1_example_2.txt)  
 
 
 ### Linked List Code
