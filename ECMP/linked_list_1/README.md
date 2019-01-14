@@ -2,12 +2,12 @@
 
 ## Contents
 
- * [Overview](Overview)
- * [References](References)
- * [Linked List Operations](Linked List Operations)
- * [Basic Principals](Basic Principals)
- * [Detailed Workings](Detailed Workings)
- * [Example Output](Example Output)
+ * [Overview](overview)
+ * [References](references)
+ * [Linked List Operations](linked-list-operations)
+ * [Basic Principals](basic-principals)
+ * [Detailed Workings](detailed-workings)
+ * [Example Output](example-output)
 
 
 ### Overview
@@ -96,7 +96,7 @@ basic `modulus()` approach. Any ECMP implementation should aim to reduce
 collisions because, collisions result in unequal distribution of traffic  
 unless the collisions are known to be equal somehow.  
 
-The table below compares the BigO stats for doubly-linked lists and hash  
+The table below compares the Big Theta stats for doubly-linked lists and hash  
 tables. Hash tables will be examined in more details in a future example.  
 Below it can be seen that upper bound search and access times of the  
 doubly-linked list are slower however, they provide a simple method for  
@@ -132,7 +132,7 @@ from 1 to 1000.
 
 
 [1] This is an example of consistent traffic distribution meaning the same  
-set of traffic `s1` is consistently forwarding to destination `d1` independant  
+set of traffic `s1` is consistently forwarding to destination `d1` independent  
 of the traffic volume or load.  
 
 [2] The terms vnode(s) and pnode(s) are arbitrary. In this example they can  
@@ -143,9 +143,76 @@ or adjacency index to reach a next-hop.
 
 ### Example Output
 
-The following example shows that after adding three pnodes the vnode point to a roughly equal share of pnodes (in this case 1000 pnodes can't be evenly devided by 3).  
+The following example shows that after adding three pnodes the vnode point to  
+a roughly equal share of pnodes (in this case 1000 pnodes can't be evenly  
+divided by 3).  
 
-![Adding pnodes](ll1_example_1.svg "Adding pnodes")  
+![Adding pnodes](https://null.53bits.co.uk/uploads/programming/github/ip-hashing/ecmp/linked_list_1/ll1_example_1.svg "Adding pnodes")   
 
-In this example 
+In the below example 3 pnodes are added and their memory addresses listed.  
+Next a random 5 tuple is generated and hashed to produce an index into the  
+vnode list and ultimately points at a pnode (the `val` field in the printed  
+vnode). The 5 tuple hash key produces an index into the vnode linked list at  
+address 0x55b7345f43a0, its `val` points to pnode 0 at address  
+0x55b7345f0260. The most recently added pnode (pnode 2) is deleted and the  
+same 5 tuple is then entered manually. It will hash to the same vnode which  
+in turn points to the same pnode. This shows that despite removing a pnode,  
+i.e. a next-hop entry, the existing traffic balance would not have been  
+affected; traffic destined to one of the two remaining next-hops continues to  
+flow to the same next-hop.  
 
+![Hashing](https://null.53bits.co.uk/uploads/programming/github/ip-hashing/ecmp/linked_list_1/ll1_example_2.svg "Hashing")  
+
+If the recording is too fast the CLI output is here: [ll2_example_2.txt](ll2_example_2.txt)  
+
+
+### Linked List Code
+
+The code isn't the greatest but, it is simple and thus easy to understand, I  
+hope. A simple struct is the basis for all vnode and pnode linked list items:  
+
+```c
+struct node {
+    void*  val;
+    struct node* next;
+    struct node* prev;
+};
+```
+
+`next` and `prev` point to the next and previous items in the linked list,  
+respectively. For an item in the vnodes linked list, `val` will point a pnode  
+item in the pnodes linked list. In this example code, for pnode items `val`  
+is left as `NULL` but, it could serve as the pointer to an ifIndex or  
+adjacency index etc.  
+
+Using linked lists means that one can write functions like `node_add()` in  
+[node.c](node.c) which will simply `calloc()` the memory required for an  
+additional `struct node` and updates the `next` value in the last list item  
+to point to this new node, and the `prev` value in the first item of the  
+linked list to point to this new item. The list can be inserted into at any  
+point. `root_pnode` and `root_vnode` are the same `node` struct objects and  
+point to the first item in the linked list. This is why linked list insertion  
+time is always Θ(1), the entire list doesn't need to be walked to find the  
+end.  
+
+In this implementation the deletion time isn't Θ(1) though. One method for  
+implementing a delete function that isn't affected by list length is to  
+allocate the memory for the entire list when the program starts. For example,  
+we could `calloc()`/`malloc()` the space for 128 pnodes (assuming we know  
+what our platform upper bound is). The first pnode entry would simply have  
+it's `prev` and `next` values point to it's self. The second pnode, when  
+required, would simply be located at the `malloc()` address +  
+`sizeof(struct node)`, `prev` and `next` would both point back to the first  
+pnode and the first pnode's `prev` and `next` values would both point to the  
+second pnode address. The third pnode would be stored at the `malloc()`  
+address + 2x`sizeof(struct node)`, and so on.  
+
+When the n'th pnode is to be deleted the program can simply  
+`free(root_pnode + (n-1)*sizeof(struct node));`. The problem with this  
+approach is if there is no limit to the number of pnodes or pnodes aren't all  
+allocated together, then discontigous memory space may be used, which is the  
+case for this example. In this example the user adds pnodes manually, which  
+calls `calloc()` each time. Although it is very likely, it is not guaranteed  
+that the pnodes will be stored in continuous memory space. For this reason,  
+this example has to walk the vnode or pnode linked lists to delete the n'th  
+item (assuming n is neither the first or last item in the list).  

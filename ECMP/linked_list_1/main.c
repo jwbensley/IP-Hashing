@@ -58,14 +58,21 @@ int32_t main(int32_t argc, char *argv[]) {
 
                 if (pnode_cnt == 0) break;
 
+                uint8_t is_ipv6 = (rand() % 2);
+
                 generate_flow(dst_ip_addr, &dst_port, &ip_proto, \
-                              src_ip_addr, &src_port, (rand() % 2));
+                              src_ip_addr, &src_port, is_ipv6);
 
-                
-
-                uint32_t vnode_index = hash_ipv4(dst_ip_addr, dst_port, \
-                                                 ip_proto, src_ip_addr, \
-                                                 src_port, vnode_cnt);
+                uint32_t vnode_index = 0;
+                if (is_ipv6) {
+                    vnode_index = hash_ipv4(dst_ip_addr, dst_port, \
+                                            ip_proto, src_ip_addr, \
+                                            src_port, vnode_cnt);
+                } else {
+                    vnode_index = hash_ipv6(dst_ip_addr, dst_port, \
+                                            ip_proto, src_ip_addr, \
+                                            src_port, vnode_cnt);
+                }
 
                 printf("Hashed to virtual node:\n");
                 node_print(node_get(root_vnode, vnode_index));
@@ -169,8 +176,8 @@ int32_t main(int32_t argc, char *argv[]) {
                 printf("1 - Hash a random 5 tuple\n");
                 printf("2 - Hash a specific 5 tuple\n");
                 printf("3 - Hash every possible value - do not use!\n");
-                printf("5 - Add a next-hop index\n");
-                printf("6 - Delete a next-hop index\n");
+                printf("5 - Add a pnode (next-hop index)\n");
+                printf("6 - Delete a pnode (next-hop index)\n");
                 printf("7 - Print the linked-lists\n");
                 printf("8 - Print node counts\n");
                 printf("9 - Quit\n");

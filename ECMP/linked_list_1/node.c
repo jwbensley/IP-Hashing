@@ -198,7 +198,7 @@ static int32_t pnode_add(uint32_t *pnode_cnt, struct node *root_pnode, \
         }
     }
 
-    printf("Added next-hop entry\n");
+    printf("Added pnode (next-hop entry)\n");
     return EXIT_SUCCESS;
 
 }
@@ -228,7 +228,7 @@ static void pnode_delete(uint32_t *pnode_cnt, struct node *root_pnode, \
         node_delete(root_pnode->prev);
         if (*pnode_cnt > 0) *pnode_cnt -= 1;
 
-        printf("Deleted next-hop entry\n");
+        printf("Deleted pnode (next-hop index)\n");
     
     }
 

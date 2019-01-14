@@ -30,9 +30,9 @@ static void generate_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
     *dst_port = (uint16_t)(65535.0 * rand() / (RAND_MAX + 1.0));
 
     if (*ip_proto == 6) {
-        printf("Generated TCP flow:\n");
+        printf("Generated TCP (6) flow:\n");
     } else {
-        printf("Generated UDP flow:\n");
+        printf("Generated UDP (17) flow:\n");
     }
     if (is_ipv6) {
         printf("%02hx%02hx:%02hx%02hx:%02hx%02hx:%02hx%02hx:%02hx%02hx"
@@ -43,17 +43,17 @@ static void generate_flow(uint8_t dst_ip_addr[sizeof(struct in6_addr)], \
                src_ip_addr[12], src_ip_addr[13], src_ip_addr[14], src_ip_addr[15],
                *src_port);
         printf("%02hx%02hx:%02hx%02hx:%02hx%02hx:%02hx%02hx:%02hx%02hx"
-               "%02hx%02hx:%02hx%02hx:%02hx%02hx:%" PRIu16 "\n",
+               "%02hx%02hx:%02hx%02hx:%02hx%02hx:%" PRIu16 "\n\n",
                dst_ip_addr[0], dst_ip_addr[1], dst_ip_addr[2], dst_ip_addr[3],
                dst_ip_addr[4], dst_ip_addr[5], dst_ip_addr[6], dst_ip_addr[7],
                dst_ip_addr[8], dst_ip_addr[9], dst_ip_addr[10], dst_ip_addr[11],
                dst_ip_addr[12], dst_ip_addr[13], dst_ip_addr[14], dst_ip_addr[15],
                *dst_port);
     } else {
-        printf("%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8 ":%" PRIu16 " ->",
+        printf("%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8 ":%" PRIu16 " -> ",
                src_ip_addr[0], src_ip_addr[1], src_ip_addr[2], src_ip_addr[3],
                *src_port);
-        printf("%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8 ":%" PRIu16 "\n",
+        printf("%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8 ":%" PRIu16 "\n\n",
                dst_ip_addr[0], dst_ip_addr[1], dst_ip_addr[2], dst_ip_addr[3],
                *dst_port);
     }
@@ -212,6 +212,8 @@ static int32_t read_ip_flow(int8_t dst_ip_str[INET6_ADDRSTRLEN], \
         printf("\n");
         return EXIT_FAILURE;
     }
+
+    printf("\n");
 
     return EXIT_SUCCESS;
 

@@ -1,0 +1,136 @@
+bensley@ubuntu18:~/C/IP-Hashing/ECMP/linked_list_1$ termtosvg ./ll1_example_2.svg 
+Recording started, enter "exit" command or Control-D to end
+bensley@ubuntu18:~/C/IP-Hashing/ECMP/linked_list_1$ gcc -o ll1 main.c -pedantic -ftrapv -O0 -g && ./ll1 
+
+1 - Hash a random 5 tuple
+2 - Hash a specific 5 tuple
+3 - Hash every possible value - do not use!
+5 - Add a pnode (next-hop index)
+6 - Delete a pnode (next-hop index)
+7 - Print the linked-lists
+8 - Print node counts
+9 - Quit
+Type a number and press enter: 5
+
+Added pnode (next-hop entry)
+
+1 - Hash a random 5 tuple
+2 - Hash a specific 5 tuple
+3 - Hash every possible value - do not use!
+5 - Add a pnode (next-hop index)
+6 - Delete a pnode (next-hop index)
+7 - Print the linked-lists
+8 - Print node counts
+9 - Quit
+Type a number and press enter: 5
+
+Added pnode (next-hop entry)
+
+1 - Hash a random 5 tuple
+2 - Hash a specific 5 tuple
+3 - Hash every possible value - do not use!
+5 - Add a pnode (next-hop index)
+6 - Delete a pnode (next-hop index)
+7 - Print the linked-lists
+8 - Print node counts
+9 - Quit
+Type a number and press enter: 5
+
+Added pnode (next-hop entry)
+
+1 - Hash a random 5 tuple
+2 - Hash a specific 5 tuple
+3 - Hash every possible value - do not use!
+5 - Add a pnode (next-hop index)
+6 - Delete a pnode (next-hop index)
+7 - Print the linked-lists
+8 - Print node counts
+9 - Quit
+Type a number and press enter: 1
+
+Generated TCP (6) flow:
+140.3.152.78:8272 -> 76.188.76.49:47123
+
+Hashed to virtual node:
+node: 0x55b7345f43a0 {
+ prev = 0x55b7345f4380,
+ next = 0x55b7345f43c0,
+ val = 0x55b7345f0260
+}
+
+1 - Hash a random 5 tuple
+2 - Hash a specific 5 tuple
+3 - Hash every possible value - do not use!
+5 - Add a pnode (next-hop index)
+6 - Delete a pnode (next-hop index)
+7 - Print the linked-lists
+8 - Print node counts
+9 - Quit
+Type a number and press enter: 8
+
+333 vnodes point to pnode 0 (0x55b7345f0260)
+334 vnodes point to pnode 1 (0x55b7345f87e0)
+333 vnodes point to pnode 2 (0x55b7345f8800)
+1000/1000 vnodes counted
+
+1 - Hash a random 5 tuple
+2 - Hash a specific 5 tuple
+3 - Hash every possible value - do not use!
+5 - Add a pnode (next-hop index)
+6 - Delete a pnode (next-hop index)
+7 - Print the linked-lists
+8 - Print node counts
+9 - Quit
+Type a number and press enter: 6
+
+Deleted pnode (next-hop index)
+
+1 - Hash a random 5 tuple
+2 - Hash a specific 5 tuple
+3 - Hash every possible value - do not use!
+5 - Add a pnode (next-hop index)
+6 - Delete a pnode (next-hop index)
+7 - Print the linked-lists
+8 - Print node counts
+9 - Quit
+Type a number and press enter: 8
+
+499 vnodes point to pnode 0 (0x55b7345f0260)
+501 vnodes point to pnode 1 (0x55b7345f87e0)
+1000/1000 vnodes counted
+
+1 - Hash a random 5 tuple
+2 - Hash a specific 5 tuple
+3 - Hash every possible value - do not use!
+5 - Add a pnode (next-hop index)
+6 - Delete a pnode (next-hop index)
+7 - Print the linked-lists
+8 - Print node counts
+9 - Quit
+Type a number and press enter: 2
+
+Enter destination IP address: 76.188.76.49
+Enter source IP address: 140.3.152.78
+Enter IP protocol [6 or 17]: 6
+Enter destination port number: 47123
+Enter source port number: 8272
+
+Hashed to virtual node:
+node: 0x55b7345f43a0 {
+ prev = 0x55b7345f4380,
+ next = 0x55b7345f43c0,
+ val = 0x55b7345f0260
+}
+
+1 - Hash a random 5 tuple
+2 - Hash a specific 5 tuple
+3 - Hash every possible value - do not use!
+5 - Add a pnode (next-hop index)
+6 - Delete a pnode (next-hop index)
+7 - Print the linked-lists
+8 - Print node counts
+9 - Quit
+Type a number and press enter: ^C
+bensley@ubuntu18:~/C/IP-Hashing/ECMP/linked_list_1$ exit
+exit
+Recording ended, SVG animation is ./ll1_example_2.svg
