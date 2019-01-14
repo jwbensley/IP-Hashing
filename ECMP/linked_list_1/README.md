@@ -2,12 +2,13 @@
 
 ## Contents
 
- * [Overview](overview)
- * [References](references)
- * [Linked List Operations](linked-list-operations)
- * [Basic Principals](basic-principals)
- * [Detailed Workings](detailed-workings)
- * [Example Output](example-output)
+ * [Overview](#overview)
+ * [References](#references)
+ * [Linked List Operations](#linked-list-operations)
+ * [Basic Principals](#basic-principals)
+ * [Detailed Workings](#detailed-workings)
+ * [Example Output](#example-output)
+ * [Linked List Code](#linked-list-code)
 
 
 ### Overview
@@ -70,7 +71,7 @@ of the vnodes list and the outcome is consistent irrelevant of the number of
 pnodes or when they are added or removed.  
 
 
-### Details
+### Detailed Workings
 
 In this example a simple modulus hash is performed on a 5 tuple (destination  
 IP, source IP, IP protocol number, destination port, source port) which  
